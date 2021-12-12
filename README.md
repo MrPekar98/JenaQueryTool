@@ -2,7 +2,7 @@
 A tool to analyze SPARQL queries in Apache Jena ARQ.
 
 ## Guide
-Run the jar file with any of the following parameters:
+Run the jar file with any of the following parameters using JDK 11:
 
 - `query`: print the input query
 - `plan`: print the query execution plan
