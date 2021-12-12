@@ -11,4 +11,4 @@ Run the jar file with any of the following parameters:
 Pass the name of the .txt file with the input SPARQL query.
 All of the above commands can be passed at once to print all results.
 
-The tool can be extended. Just add a new class in the run package that implements the `Executable<Value>` class. Instantiate the new class in the `Token` enum.
+The tool can be extended. Just add a new class in the `run` package that implements the `Executable<Value>` class. Instantiate the new class in the `Token` enum.
