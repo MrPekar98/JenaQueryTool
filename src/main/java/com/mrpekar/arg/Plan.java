@@ -24,11 +24,20 @@ public final class Plan implements Executable<Value>
     public Value exec(Object... args)
     {
         List<Value> values = new ArrayList<>();
-        String file = this.l.getFile();
+        String queryFile = this.l.getQueryFile(), dataFile = null;
 
-        while (!this.l.isAtEnd())
+        while (this.l.hasNext())
         {
-            values.add(this.l.next().getExecutable().exec(file));
+            Token next = this.l.next();
+
+            if (next.equals(Token.DATA_OPT) && (next = this.l.next()).equals(Token.FILE))
+                dataFile = this.l.getDataFile();
+
+            if (dataFile != null)
+                values.add(next.getExecutable().exec(queryFile, dataFile));
+
+            else
+                values.add(next.getExecutable().exec(queryFile));
         }
 
         return new Value("Analysis", values);

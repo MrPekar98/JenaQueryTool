@@ -2,30 +2,86 @@ package com.mrpekar.run;
 
 import com.mrpekar.Executable;
 import com.mrpekar.Value;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.algebra.Algebra;
+import org.apache.jena.sparql.algebra.AlgebraGenerator;
 import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.algebra.op.Op0;
+import org.apache.jena.sparql.algebra.op.Op1;
+import org.apache.jena.sparql.algebra.op.Op2;
+import org.apache.jena.sparql.algebra.op.OpN;
+
+import java.util.List;
 
 public class QueryPlan implements Executable<Value>
 {
-    private String file;
-
-    public void setFile(String file)
+    @Override
+    public Value exec(Object ... args)
     {
-        this.file = file;
+        if (args.length < 1)
+            throw new RuntimeException("Expect a query file");
+
+        Query query = QueryFactory.read((String) args[0]);
+        Op op = (new AlgebraGenerator()).compile(query);
+        return new Value("Query Physical Plan", genASTString(op));
     }
 
-    @Override
-    public Value exec(Object... args)
+    private static String genASTString(Op op)
     {
-        if (args.length != 1)
-            throw new RuntimeException("Expects a file");
+        return op.getName() + genASTStringTail(op, "", 1);
+    }
 
-        else if (!(args[0] instanceof String))
-            throw new RuntimeException("Argument should be string");
+    private static String genASTStringTail(Op op, String str, int layers)
+    {
+        if (op instanceof Op0)
+            return str;
 
-        String query = (String) new Query().exec(args).getValue();
-        Op op = Algebra.compile(QueryFactory.create(query));
-        return new Value<>("Query Plan", op.toString());
+        else if (op instanceof Op1)
+        {
+            Op subOp = ((Op1) op).getSubOp();
+            str = enterScope(str, layers);
+            return genASTStringTail(subOp, str + subOp.getName(), layers + 1);
+        }
+
+        else if (op instanceof Op2)
+        {
+            Op leftChild = ((Op2) op).getLeft(), rightChild = ((Op2) op).getRight();
+            String leftScope = enterScope(str, layers);
+            String leftBranch = genASTStringTail(leftChild, leftScope + leftChild.getName(), layers + 1);
+            String rightScope = enterScope(leftBranch, layers);
+            return genASTStringTail(rightChild, rightScope + rightChild.getName(), layers + 1);
+        }
+
+        else if (op instanceof OpN)
+        {
+            List<Op> ops = ((OpN) op).getElements();
+
+            for (Op operator : ops)
+            {
+                String scope = enterScope(str, layers);
+                str += genASTStringTail(operator, scope + operator.getName(), layers + 1);
+            }
+
+            return str;
+        }
+
+        return "";
+    }
+
+    private static String enterScope(String str, int layers)
+    {
+        String newStr = str;
+        newStr += "\n";
+
+        for (int i = 0; i < layers; i++)
+        {
+            newStr += "  ";
+        }
+
+        return newStr;
     }
 }

@@ -2,6 +2,7 @@ package com.mrpekar.arg;
 
 import com.mrpekar.Executable;
 import com.mrpekar.Value;
+import com.mrpekar.run.Intermediate;
 import com.mrpekar.run.Length;
 import com.mrpekar.run.Query;
 import com.mrpekar.run.QueryPlan;
@@ -13,7 +14,10 @@ public enum Token
     PLAN("plan", new QueryPlan()),
     QUERY("query", new Query()),
     LENGTH("length", new Length()),
-    FILE("file", null);
+    FILE("file", null),
+    INTERMEDIATE("intermediate", new Intermediate()),
+    DATA_OPT("--data", null),
+    QUERY_OPT("--query", null);
 
     private String lexeme;
     private Executable<Value> exec;
@@ -54,6 +58,15 @@ public enum Token
 
             case "length":
                 return Token.LENGTH;
+
+            case "intermediate":
+                return Token.INTERMEDIATE;
+
+            case "--data":
+                return Token.DATA_OPT;
+
+            case "--query":
+                return Token.QUERY_OPT;
 
             default:
                 return null;

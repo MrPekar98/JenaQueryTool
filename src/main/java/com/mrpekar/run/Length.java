@@ -16,7 +16,7 @@ public class Length implements Executable<Value>
     @Override
     public Value exec(Object... args)
     {
-        if (args.length != 1)
+        if (args.length < 1)
             throw new RuntimeException("Expects a file");
 
         else if (!(args[0] instanceof String))
