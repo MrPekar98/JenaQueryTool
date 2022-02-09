@@ -10,7 +10,7 @@ Run the jar file with any of the following parameters using JDK 11:
 - `intermediate`: print intermediate result set sizes
 
 A query file is mandatory. Run the executable with `--query` followed by the query file name containing the SPARQL query.
-To run the `intermediate` command, a data file is necessary. Add the flag `--data` followed by the RDF data file name.
+To run the `intermediate` command, a data file or persistent data path is necessary. Add the flag `--data` followed by the RDF data file name or use the `--loc` followed by the path to the persistent data.
 All of the above commands can be passed at once to print all results.
 
 The tool can be extended. Just add a new class in the `run` package that implements the `Executable<Value>` class. Instantiate the new class in the `Token` enum.
