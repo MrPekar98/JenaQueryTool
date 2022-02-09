@@ -26,7 +26,7 @@ public class Intermediate implements Executable<Value>
     public Value exec(Object ... args)
     {
         if (args.length < 2)
-            throw new RuntimeException("Expect a query file and an RDF data file");
+            throw new RuntimeException("Expects a query file and an RDF data file or database storage path");
 
         String queryFile = (String) args[0], data = (String) args[1];
         Query query = QueryFactory.read(queryFile);
