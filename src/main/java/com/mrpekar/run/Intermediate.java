@@ -5,7 +5,6 @@ import com.mrpekar.Value;
 import com.mrpekar.util.iterator.QueryIteratorCopy;
 import org.apache.jena.query.*;
 import org.apache.jena.query.Query;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.algebra.AlgebraGenerator;
 import org.apache.jena.sparql.algebra.Op;
@@ -13,7 +12,6 @@ import org.apache.jena.sparql.algebra.op.Op0;
 import org.apache.jena.sparql.algebra.op.Op1;
 import org.apache.jena.sparql.algebra.op.Op2;
 import org.apache.jena.sparql.algebra.op.OpN;
-import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.main.OpExecutor;
@@ -32,12 +30,11 @@ public class Intermediate implements Executable<Value>
 
         String queryFile = (String) args[0], data = (String) args[1];
         Query query = QueryFactory.read(queryFile);
-        Model model = RDFDataMgr.loadModel(data);
         Op op = (new AlgebraGenerator()).compile(query);
         ExecutionContext context;
 
         if (data.contains("."))
-            context = new ExecutionContext(DatasetFactory.create(model).asDatasetGraph());
+            context = new ExecutionContext(DatasetFactory.create(RDFDataMgr.loadModel(data)).asDatasetGraph());
 
         else
             context = new ExecutionContext(DatasetBuilderStd.create(Location.create(data)));

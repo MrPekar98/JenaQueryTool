@@ -74,7 +74,7 @@ public enum Token
             case "--data":
                 return Token.DATA_OPT;
 
-            case "--log":
+            case "--loc":
                 return Token.DATA_LOC_OPT;
 
             case "--query":
