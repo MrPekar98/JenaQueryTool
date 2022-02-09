@@ -24,7 +24,7 @@ public final class Plan implements Executable<Value>
     public Value exec(Object... args)
     {
         List<Value> values = new ArrayList<>();
-        String queryFile = this.l.getQueryFile(), dataFile = null;
+        String queryFile = this.l.getQueryFile(), dataFile = null, locPath = null;
 
         while (this.l.hasNext())
         {
@@ -33,8 +33,14 @@ public final class Plan implements Executable<Value>
             if (next.equals(Token.DATA_OPT) && (next = this.l.next()).equals(Token.FILE))
                 dataFile = this.l.getDataFile();
 
+            else if (next.equals(Token.DATA_LOC_OPT) && (next = this.l.next()).equals(Token.PATH))
+                locPath = this.l.getLocPath();
+
             if (dataFile != null)
                 values.add(next.getExecutable().exec(queryFile, dataFile));
+
+            else if (locPath != null)
+                values.add(next.getExecutable().exec(queryFile, locPath));
 
             else
                 values.add(next.getExecutable().exec(queryFile));

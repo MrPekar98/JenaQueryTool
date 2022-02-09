@@ -13,9 +13,12 @@ import org.apache.jena.sparql.algebra.op.Op0;
 import org.apache.jena.sparql.algebra.op.Op1;
 import org.apache.jena.sparql.algebra.op.Op2;
 import org.apache.jena.sparql.algebra.op.OpN;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.main.OpExecutor;
+import org.apache.jena.tdb.base.file.Location;
+import org.apache.jena.tdb.setup.DatasetBuilderStd;
 
 import java.util.List;
 
@@ -27,14 +30,19 @@ public class Intermediate implements Executable<Value>
         if (args.length < 2)
             throw new RuntimeException("Expect a query file and an RDF data file");
 
-        String queryFile = (String) args[0], dataFile = (String) args[1];
+        String queryFile = (String) args[0], data = (String) args[1];
         Query query = QueryFactory.read(queryFile);
-        Model model = RDFDataMgr.loadModel(dataFile);
+        Model model = RDFDataMgr.loadModel(data);
         Op op = (new AlgebraGenerator()).compile(query);
+        ExecutionContext context;
 
-        ExecutionContext context = new ExecutionContext(DatasetFactory.create(model).asDatasetGraph());
+        if (data.contains("."))
+            context = new ExecutionContext(DatasetFactory.create(model).asDatasetGraph());
+
+        else
+            context = new ExecutionContext(DatasetBuilderStd.create(Location.create(data)));
+
         OpExecutor executor = OpExecutor.stdFactory.create(context);
-
         return new Value("Query Plan Intermediate Result Set Sizes", intermediateResultSizesStr(context, executor, op));
     }
 

@@ -15,8 +15,10 @@ public enum Token
     QUERY("query", new Query()),
     LENGTH("length", new Length()),
     FILE("file", null),
+    PATH("path", null),
     INTERMEDIATE("intermediate", new Intermediate()),
     DATA_OPT("--data", null),
+    DATA_LOC_OPT("--loc", null),
     QUERY_OPT("--query", null);
 
     private String lexeme;
@@ -43,7 +45,14 @@ public enum Token
     {
         if (t.contains("."))
         {
-            Token token =  Token.FILE;
+            Token token = Token.FILE;
+            token.lexeme = t;
+            return token;
+        }
+
+        else if (t.contains("/"))
+        {
+            Token token = Token.PATH;
             token.lexeme = t;
             return token;
         }
@@ -64,6 +73,9 @@ public enum Token
 
             case "--data":
                 return Token.DATA_OPT;
+
+            case "--log":
+                return Token.DATA_LOC_OPT;
 
             case "--query":
                 return Token.QUERY_OPT;

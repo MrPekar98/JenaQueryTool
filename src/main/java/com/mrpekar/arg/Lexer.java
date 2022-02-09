@@ -8,8 +8,8 @@ public class Lexer implements Tokenizer
 {
     private String[] args;
     private int pointer = 0;
-    private String queryFile = null, dataFile = null;
-    private boolean queryOptSeen = false, dataOptSeen = false;
+    private String queryFile = null, dataFile = null, locPath = null;
+    private boolean queryOptSeen = false, dataOptSeen = false, locOptSeen = false;
 
     public Lexer(String[] args)
     {
@@ -33,6 +33,9 @@ public class Lexer implements Tokenizer
         else if (t.equals(Token.DATA_OPT))
             this.dataOptSeen = true;
 
+        else if (t.equals(Token.DATA_LOC_OPT))
+            this.locOptSeen = true;
+
         else if (t.equals(Token.FILE))
         {
             Token prev = Token.toToken(this.args[this.pointer - 2]);
@@ -43,6 +46,9 @@ public class Lexer implements Tokenizer
             else if (prev.equals(Token.DATA_OPT))
                 this.dataFile = t.toString();
         }
+
+        else if (t.equals(Token.PATH) && Token.toToken(this.args[this.pointer - 2]).equals(Token.DATA_LOC_OPT))
+            this.locPath = t.toString();
 
         return t;
     }
@@ -111,5 +117,22 @@ public class Lexer implements Tokenizer
             throw new RuntimeException("Missing '--data' flag");
 
         return f;
+    }
+
+    public String getLocPath()
+    {
+        int current = this.pointer;
+        all();
+
+        String path = this.locPath;
+        this.pointer = current;
+
+        if (path == null)
+            throw new RuntimeException("Missing location path");
+
+        else if (!this.locOptSeen)
+            throw new RuntimeException("Missing --loc flag");
+
+        return path;
     }
 }
