@@ -8,17 +8,25 @@ public class Main
 {
     public static void main(String[] args)
     {
-        Value value = new Plan(args).exec();
-        List<Value> values = (List<Value>) value.getValue();
-        System.out.println(value.getLabel() + "\n");
-
-        for (Value<?> val : values)
+        try
         {
-            if (val.isEmpty())
-                continue;
+            Value value = new Plan(args).exec();
+            List<Value> values = (List<Value>) value.getValue();
+            System.out.println(value.getLabel() + "\n");
 
-            System.out.println(val.getLabel());
-            System.out.println(val.getValue().toString() + "\n");
+            for (Value<?> val : values)
+            {
+                if (val.isEmpty())
+                    continue;
+
+                System.out.println(val.getLabel());
+                System.out.println(val.getValue().toString() + "\n");
+            }
+        }
+
+        catch (Exception exc)
+        {
+            System.err.println("Error: " + exc.getMessage());
         }
     }
 }

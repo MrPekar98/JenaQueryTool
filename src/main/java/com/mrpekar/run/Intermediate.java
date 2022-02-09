@@ -33,7 +33,7 @@ public class Intermediate implements Executable<Value>
         Op op = (new AlgebraGenerator()).compile(query);
         ExecutionContext context;
 
-        if (data.contains("."))
+        if (data.split("/")[data.split("/").length - 1].contains("."))
             context = new ExecutionContext(DatasetFactory.create(RDFDataMgr.loadModel(data)).asDatasetGraph());
 
         else

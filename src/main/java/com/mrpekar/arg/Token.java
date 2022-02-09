@@ -43,7 +43,7 @@ public enum Token
 
     public static Token toToken(String t)
     {
-        if (t.contains("."))
+        if ((!t.contains("/") && t.contains(".")) || t.split("/")[t.split("/").length - 1].contains("."))
         {
             Token token = Token.FILE;
             token.lexeme = t;
