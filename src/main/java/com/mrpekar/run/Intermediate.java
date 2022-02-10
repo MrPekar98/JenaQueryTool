@@ -3,21 +3,21 @@ package com.mrpekar.run;
 import com.mrpekar.Executable;
 import com.mrpekar.Value;
 import com.mrpekar.util.iterator.QueryIteratorCopy;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.query.*;
 import org.apache.jena.query.Query;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.algebra.AlgebraGenerator;
 import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.op.Op0;
-import org.apache.jena.sparql.algebra.op.Op1;
-import org.apache.jena.sparql.algebra.op.Op2;
-import org.apache.jena.sparql.algebra.op.OpN;
+import org.apache.jena.sparql.algebra.op.*;
+import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.main.OpExecutor;
 import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.tdb.setup.DatasetBuilderStd;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class Intermediate implements Executable<Value>
@@ -54,7 +54,10 @@ public class Intermediate implements Executable<Value>
     {
         QueryIteratorCopy copyIter = new QueryIteratorCopy(OpExecutor.createRootQueryIterator(ctx));
 
-        if (op instanceof Op0)
+        if (op instanceof OpBGP)
+            return triplePatternSizes(str, layers, exec, copyIter, (OpBGP) op);
+
+        else if (op instanceof Op0)
             return str;
 
         else if (op instanceof Op1)
@@ -119,5 +122,20 @@ public class Intermediate implements Executable<Value>
         }
 
         return count;
+    }
+
+    private static String triplePatternSizes(String curString, int layers, OpExecutor executor, QueryIteratorCopy iterCopy, OpBGP bgp)
+    {
+        String str = "";
+        Iterator<Triple> triples = bgp.getPattern().iterator();
+
+        while (triples.hasNext())
+        {
+            OpTriple triple = new OpTriple(triples.next());
+            str += enterScope(curString, layers) + triple.getName() +
+                    " (" + resultSize(executor.executeOp(triple, iterCopy.copy())) + ")";
+        }
+
+        return str;
     }
 }
