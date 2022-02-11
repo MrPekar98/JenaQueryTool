@@ -55,10 +55,7 @@ public class Intermediate implements Executable<Value>
         QueryIteratorCopy copyIter = new QueryIteratorCopy(OpExecutor.createRootQueryIterator(ctx));
 
         if (op instanceof OpBGP)
-            return triplePatternSizes(str, layers, exec, copyIter, (OpBGP) op);
-
-        else if (op instanceof Op0)
-            return str;
+            return str + triplePatternSizesStr(layers, exec, copyIter, (OpBGP) op);
 
         else if (op instanceof Op1)
         {
@@ -124,15 +121,15 @@ public class Intermediate implements Executable<Value>
         return count;
     }
 
-    private static String triplePatternSizes(String curString, int layers, OpExecutor executor, QueryIteratorCopy iterCopy, OpBGP bgp)
+    private static String triplePatternSizesStr(int layers, OpExecutor executor, QueryIteratorCopy iterCopy, OpBGP bgp)
     {
-        String str = curString;
+        String str = "";
         Iterator<Triple> triples = bgp.getPattern().iterator();
 
         while (triples.hasNext())
         {
             OpTriple triple = new OpTriple(triples.next());
-            str += enterScope(str, layers) + triple.getName() +
+            str = enterScope(str, layers) + triple.getName() +
                     " (" + resultSize(executor.executeOp(triple, iterCopy.copy())) + ")";
         }
 
