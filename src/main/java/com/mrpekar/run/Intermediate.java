@@ -126,13 +126,13 @@ public class Intermediate implements Executable<Value>
 
     private static String triplePatternSizes(String curString, int layers, OpExecutor executor, QueryIteratorCopy iterCopy, OpBGP bgp)
     {
-        String str = "";
+        String str = curString;
         Iterator<Triple> triples = bgp.getPattern().iterator();
 
         while (triples.hasNext())
         {
             OpTriple triple = new OpTriple(triples.next());
-            str += enterScope(curString, layers) + triple.getName() +
+            str += enterScope(str, layers) + triple.getName() +
                     " (" + resultSize(executor.executeOp(triple, iterCopy.copy())) + ")";
         }
 
