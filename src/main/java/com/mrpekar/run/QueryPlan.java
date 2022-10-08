@@ -2,6 +2,7 @@ package com.mrpekar.run;
 
 import com.mrpekar.Executable;
 import com.mrpekar.Value;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryFactory;
@@ -10,10 +11,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.AlgebraGenerator;
 import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.op.Op0;
-import org.apache.jena.sparql.algebra.op.Op1;
-import org.apache.jena.sparql.algebra.op.Op2;
-import org.apache.jena.sparql.algebra.op.OpN;
+import org.apache.jena.sparql.algebra.op.*;
 
 import java.util.List;
 
@@ -23,7 +21,7 @@ public class QueryPlan implements Executable<Value>
     public Value exec(Object ... args)
     {
         if (args.length < 1)
-            throw new RuntimeException("Expect a query file");
+            throw new RuntimeException("Expects a query file");
 
         Query query = QueryFactory.read((String) args[0]);
         Op op = (new AlgebraGenerator()).compile(query);
@@ -37,7 +35,20 @@ public class QueryPlan implements Executable<Value>
 
     private static String genASTStringTail(Op op, String str, int layers)
     {
-        if (op instanceof Op0)
+        if (op instanceof OpBGP)
+        {
+            OpBGP bgp = (OpBGP) op;
+            String bgpStr = str;
+
+            for (Triple triple : bgp.getPattern().getList())
+            {
+                bgpStr = enterScope(bgpStr, layers + 1) + '[' +  triple + ']';
+            }
+
+            return bgpStr ;
+        }
+
+        else if (op instanceof Op0)
             return str;
 
         else if (op instanceof Op1)
